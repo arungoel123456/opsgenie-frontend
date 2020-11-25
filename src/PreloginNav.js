@@ -5,20 +5,30 @@ import {
   Switch,
   Route,
 } from "react-router-dom";
-import Home from "./Home";
+import App from "./App";
+import FrontPage from "./FrontPage";
+import Login from "./Login";
 
 export default function PreloginNav() {
+  const [userLoggedIn, setUserLoggedIn] = React.useState(false);
+  React.useEffect(() => {
+    console.log("useEffect");
+    if (localStorage.jwt !== undefined) {
+      setUserLoggedIn(true);
+    }
+  });
   return (
     <div>
-      <Router>
-        <NavLink to="/">Home</NavLink>
+      {/* <Router> */}
+      <NavLink to="/">Home</NavLink>
 
-        <div>
-          <Switch>
-            <Route path="/" exact component={Home} />
-          </Switch>
-        </div>
-      </Router>
+      <div>
+        <Switch>
+          <Route path="/" exact component={FrontPage} />
+          <Route path="/login" component={Login} />
+        </Switch>
+      </div>
+      {/* </Router> */}
     </div>
   );
 }

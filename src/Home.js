@@ -7,6 +7,10 @@ export default function Home(props) {
   //     setUserLoggedIn(true);
   //   }
   // }, []);
+  console.log(props);
+  React.useEffect(() => {
+    window.location.reload(true);
+  });
 
   return (
     <div>

@@ -2,7 +2,7 @@ import React from "react";
 
 export default function Signup(props) {
   const [number, setNumber] = React.useState("");
-
+  console.log(props);
   function signup(event) {
     event.preventDefault();
     console.log(event.target.firstName.value);
@@ -25,7 +25,9 @@ export default function Signup(props) {
       .then((response) => {
         if (response.success === 1) {
           localStorage.setItem("jwt", response.token);
-          window.location.reload(true);
+          localStorage.setItem("user", response.data.insertId);
+          // window.location.reload(true);
+          window.location.href = "/alert";
         }
       });
   }
@@ -63,6 +65,14 @@ export default function Signup(props) {
         </div>
         <button type="submit">SIGN UP</button>
       </form>
+      <button
+        onClick={() => {
+          console.log(props);
+          props.history.push("/login");
+        }}
+      >
+        Login
+      </button>
     </div>
   );
 }

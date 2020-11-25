@@ -1,26 +1,16 @@
 import React from "react";
 import Modal, { ModalTransition, ScrollBehavior } from "@atlaskit/modal-dialog";
-import "./Alert.css";
+import "./incident.css";
 import Button from "@atlaskit/button";
-import {
-  NavLink,
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Link,
-} from "react-router-dom";
-import AllAlerts from "./AlertTypes/AllAlerts";
-import CloseAlerts from "./AlertTypes/CloseAlerts";
-import OpenAlerts from "./AlertTypes/OpenAlerts";
-import AckAlerts from "./AlertTypes/AckALerts";
 
-import UnAck from "./AlertTypes/UnAck";
-import AlertShow from "./AlertShow";
-
-export default function Alert(props) {
+export default function Incident(props) {
   const [scrollBehaviour, setScrollBehaviour] = React.useState("inside");
   const [isOpen, setIsOpen] = React.useState(false);
-  const close = () => setIsOpen(false);
+  const close = () => {
+    setIsOpen(false);
+    changeResponderSearchBoxValue("");
+    changeUserList([]);
+  };
   const setScrollAndOpen = (newScroll) => {
     setScrollBehaviour(newScroll);
     requestAnimationFrame(() => setIsOpen(true));
@@ -35,58 +25,57 @@ export default function Alert(props) {
 
   const [priorityValue, changePriorityValue] = React.useState(2);
 
-  function makeAlert(event) {
+  function makeIncident(event) {
     event.preventDefault();
-    console.log(event.target.priority.value);
-    let alert = {
+    // console.log(event.target.priority.value);
+    let incident = {
       title: event.target.title.value,
       description: event.target.description.value,
       priority_id: event.target.priority.value,
       responders: responderList,
       admin_id: localStorage.getItem("user"),
     };
-
+    console.log(incident);
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
 
-      body: JSON.stringify(alert),
+      body: JSON.stringify(incident),
     };
-    fetch("http://localhost:3001/api/alerts/", requestOptions)
+    fetch("http://localhost:3001/api/incidents/", requestOptions)
       .then((response) => response.json())
       .then((response) => {
         if (response.success === 1) {
-          //   window.location.reload(true);
-          props.history.push("/alert");
-          //   window.location.href = "/alert";
+          window.location.reload(true);
         }
       });
   }
 
-  const [alertsList, changeAlertsList] = React.useState();
+  const [incidentsList, changeIncidentsList] = React.useState();
   const [loading, changeLoading] = React.useState(true);
   const [searchBoxValue, changeSearchBoxValue] = React.useState("");
-  const getAlerts = async () => {
-    const response = await fetch("http://localhost:3001/api/alerts/");
+  const getIncidents = async () => {
+    const response = await fetch("http://localhost:3001/api/incidents/");
     const responsejson = await response.json();
     // console.log(responsejson);
-    const alerts = await responsejson.data;
-    changeAlertsList(alerts);
+    const incidents = await responsejson.data;
+    changeIncidentsList(incidents);
     changeLoading(false);
   };
 
   const searchValueChange = async (value) => {
     changeLoading(true);
-    const response = await fetch("http://localhost:3001/api/alerts/" + value);
+    const response = await fetch(
+      "http://localhost:3001/api/incidents/" + value
+    );
     const responsejson = await response.json();
-    const alerts = await responsejson.data;
-    changeAlertsList(alerts);
+    const incidents = await responsejson.data;
+    changeIncidentsList(incidents);
     changeLoading(false);
-    // console.log("alerts : ", alertsList);
+    console.log("incidents : ", incidentsList);
   };
 
   //   let responderList = [];
-
   const [responderList, changeResponderList] = React.useState([]);
 
   const [userList, changeUserList] = React.useState([]);
@@ -110,52 +99,55 @@ export default function Alert(props) {
     changeResponderLoading(false);
   };
 
-  //   React.useEffect(() => {
-  //     getAlerts();
-  //   }, []);
-  //   React.useEffect(() => {
-  //     console.log(responderList);
-  //   }, [responderList]);
+  React.useEffect(() => {
+    getIncidents();
+  }, []);
+  React.useEffect(() => {
+    console.log(responderList);
+  }, [responderList]);
 
-  //   const closer = (alert) => {
-  //     alert.close = true;
-  //     const requestOptions = {
-  //       method: "PATCH",
-  //       headers: { "Content-Type": "application/json" },
+  const closer = (incident) => {
+    alert.close = true;
+    const requestOptions = {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
 
-  //       body: JSON.stringify(alert),
-  //     };
-  //     fetch(`http://localhost:3001/api/alerts/close/${alert.id}`, requestOptions)
-  //       .then((response) => response.json())
-  //       .then((response) => {
-  //         if (response.success === 1) {
-  //           window.location.reload(true);
-  //         }
-  //       });
-  //     //   console.log(details);
-  //   };
+      body: JSON.stringify(incident),
+    };
+    fetch(
+      `http://localhost:3001/api/incidents/close/${incident.id}`,
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success === 1) {
+          window.location.reload(true);
+        }
+      });
+    //   console.log(details);
+  };
 
-  //   const acknowledge = (alert) => {
-  //     console.log(alert);
-  //     alert.ack = !alert.ack;
-  //     console.log(alert);
-  //     const requestOptions = {
-  //       method: "PATCH",
-  //       headers: { "Content-Type": "application/json" },
+  const acknowledge = (incident) => {
+    console.log(incident);
+    incident.ack = !incident.ack;
+    console.log(incident);
+    const requestOptions = {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
 
-  //       body: JSON.stringify(alert),
-  //     };
-  //     fetch(
-  //       `http://localhost:3001/api/alerts/acknowledge/${alert.id}`,
-  //       requestOptions
-  //     )
-  //       .then((response) => response.json())
-  //       .then((response) => {
-  //         if (response.success === 1) {
-  //           window.location.reload(true);
-  //         }
-  //       });
-  //   };
+      body: JSON.stringify(incident),
+    };
+    fetch(
+      `http://localhost:3001/api/incidents/acknowledge/${incident.id}`,
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.success === 1) {
+          window.location.reload(true);
+        }
+      });
+  };
 
   return (
     <div>
@@ -166,23 +158,22 @@ export default function Alert(props) {
         </div>
       ) : (
         <div>
-          {" "}
           <div className="secondaryHeader">
-            <span className="pageHeading"> Alerts </span>
+            <span className="pageHeading"> Incidents </span>
             <Button
               appearance="primary"
-              id="addAlertButton"
+              id="addIncidentButton"
               onClick={() => {
                 changeResponderList([]);
                 setScrollAndOpen("inside-wide");
               }}
             >
-              Add Alert
+              Add Incident
             </Button>
+            <br></br>
+            <br></br>
 
-            <br></br>
-            <br></br>
-            <div className="">
+            <div>
               <input
                 type="text"
                 className="searchBox"
@@ -194,30 +185,29 @@ export default function Alert(props) {
               />
             </div>
           </div>
+
           <ModalTransition>
             {isOpen && (
               <Modal
                 actions={[{ text: "Close", onClick: close }]}
                 onClose={close}
-                heading="Add Alert"
+                heading="Add Incident"
                 scrollBehavior={scrollBehaviour}
                 height={600}
               >
                 <form
                   onSubmit={(event) => {
                     event.preventDefault();
-                    makeAlert(event);
+                    makeIncident(event);
                   }}
                 >
                   <div>
                     <label htmlFor="title">Title</label>
-                    <br />
                     <input id="title" type="text" className="modalInput" />
                   </div>
                   <br />
                   <div>
                     <label htmlFor="description">Description</label>
-                    <br />
                     <input
                       id="description"
                       type="text"
@@ -227,11 +217,10 @@ export default function Alert(props) {
                   <br />
                   <div>
                     <label htmlFor="priority">Priority</label>
-                    <br />
                     <select
                       id="priority"
-                      value={priorityValue}
                       className="modalInput"
+                      value={priorityValue}
                       onChange={(option) => {
                         console.log(option);
                         console.log(option.value);
@@ -253,7 +242,7 @@ export default function Alert(props) {
                       ))}
                     </div>
                     <div>
-                      Responders : <br />
+                      Responders :{" "}
                       <input
                         type="text"
                         className="modalInput"
@@ -288,7 +277,8 @@ export default function Alert(props) {
                       )}
                     </div>
                   </div>
-                  <br></br>
+                  <br />
+
                   <div>
                     <input type="submit" value="Add" />
                   </div>
@@ -296,41 +286,44 @@ export default function Alert(props) {
               </Modal>
             )}
           </ModalTransition>
-          {/* <div>
+
+          <div>
             {loading ? (
               <div> Loading </div>
             ) : (
-              <ul>
-                {alertsList.map((alert, id) => (
+              <ul type="none">
+                {incidentsList.map((incident, id) => (
                   <div key={id}>
-                    <div key={id} style={{ display: "flex" }}>
+                    <div style={{ display: "flex" }}>
                       <div
                         style={{ width: "80%" }}
+                        key={id}
                         onClick={() => {
-                          props.history.push(`/alertShow/${alert.id}`, {
-                            alertId: alert.id,
+                          //   console.log(props);
+                          props.history.push(`/incidentShow/${incident.id}`, {
+                            incidentId: incident.id,
                           });
                         }}
                       >
                         <li key={id}>
-                          <Button> #{alert.id} </Button>
+                          <Button> #{incident.id} </Button>
                           <br />
                           <br />
                           <Button appearance="warning">
-                            P{alert.priority_id}{" "}
+                            P{incident.priority_id}{" "}
                           </Button>{" "}
-                          {alert.title}{" "}
+                          {incident.title}{" "}
                         </li>
                         <br />
                       </div>
                       <div key={id}>
                         <Button
                           onClick={() => {
-                            acknowledge(alert);
+                            acknowledge(incident);
                           }}
                         >
                           {" "}
-                          {alert.ack ? (
+                          {incident.ack ? (
                             <span>UnAck</span>
                           ) : (
                             <span>Ack</span>
@@ -338,13 +331,13 @@ export default function Alert(props) {
                         </Button>
                         <br />
                         <br />
-                        {alert.close ? (
+                        {incident.close ? (
                           <></>
                         ) : (
                           <div>
                             <Button
                               onClick={() => {
-                                closer(alert);
+                                closer(incident);
                               }}
                             >
                               Close
@@ -358,68 +351,7 @@ export default function Alert(props) {
                 ))}
               </ul>
             )}
-          </div> */}
-          {/* <AllAlerts {...props} />
-          <CloseAlerts {...props} />
-          <OpenAlerts {...props} />
-          <AckAlerts {...props} />
-          <UnAck {...props} /> */}
-          <Router>
-            <div className="alerts-box">
-              <div className="alerts-link-box">
-                <NavLink
-                  to="/alert"
-                  style={{ "margin-left": "4%", color: "blue" }}
-                >
-                  All
-                </NavLink>
-                <br></br>
-                <br></br>
-                <NavLink
-                  to="/alert/open"
-                  style={{ "margin-left": "4%", color: "blue" }}
-                >
-                  Open
-                </NavLink>
-                <br></br>
-                <br></br>
-                <NavLink
-                  to="/alert/close"
-                  style={{ "margin-left": "4%", color: "blue" }}
-                >
-                  Close
-                </NavLink>
-                <br></br>
-                <br></br>
-                <NavLink
-                  to="/alert/ack"
-                  style={{ "margin-left": "4%", color: "blue" }}
-                >
-                  Acked
-                </NavLink>
-                <br></br>
-                <br></br>
-                <NavLink
-                  to="/alert/unack"
-                  style={{ "margin-left": "4%", color: "blue" }}
-                >
-                  Un'Acked
-                </NavLink>
-                {/* <Link to="/alert/ack">Check</Link> */}
-              </div>
-
-              <div className="alerts-main-box">
-                <Switch>
-                  <Route exact path="/alert" component={AllAlerts} />
-                  <Route path="/alert/open" component={OpenAlerts} />
-                  <Route path="/alert/close" component={CloseAlerts} />
-                  <Route path="/alert/ack" component={AckAlerts} />
-                  <Route path="/alert/unack" component={UnAck} />
-                  <Route path="/alertShow/:id" component={AlertShow} />
-                </Switch>
-              </div>
-            </div>
-          </Router>
+          </div>
         </div>
       )}
     </div>

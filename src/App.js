@@ -1,18 +1,10 @@
 import React from "react";
 import "./App.css";
-// import {
-//   BrowserRouter as Router,
-//   Route,
-//   NavLink,
-//   Switch,
-// } from "react-router-dom";
-// import Home from "./Home";
-// import Signup from "./Signup";
-// import Alert from "./Alert";
 import PostloginNav from "./PostloginNav";
 import PreloginNav from "./PreloginNav";
+import { BrowserRouter as Router } from "react-router-dom";
 
-function App() {
+function App(props) {
   const [userLoggedIn, setUserLoggedIn] = React.useState(false);
   React.useEffect(() => {
     if (localStorage.jwt !== undefined) {
@@ -20,7 +12,13 @@ function App() {
     }
   }, []);
 
-  return <div>{userLoggedIn ? <PostloginNav /> : <PreloginNav />}</div>;
+  return (
+    <Router>
+      <div className="mainBox">
+        {userLoggedIn ? <PostloginNav /> : <PreloginNav />}
+      </div>
+    </Router>
+  );
 }
 
 export default App;
